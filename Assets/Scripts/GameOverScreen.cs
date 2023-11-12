@@ -30,6 +30,7 @@ public class GameOverScreen : MonoBehaviour {
 		bool timeup = t_GameStateManager.timeup;
 		if (!timeup) {
 			MessageText.text = "GAME OVER";
+			LevelManager.totalTime = 0;
 		} else {
 			StartCoroutine (ChangeMessageCo ());
 		}
@@ -48,6 +49,7 @@ public class GameOverScreen : MonoBehaviour {
 
 	IEnumerator ChangeMessageCo() { // TIME UP to GAME OVER
 		MessageText.text = "TIME UP";
+		LevelManager.totalTime = 0;
 		yield return new WaitForSecondsRealtime (1f);
 		MessageText.text = "GAME OVER";
 	}

@@ -5,7 +5,6 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Text.RegularExpressions;
 using System.Runtime.InteropServices;
-
 public class LevelManager : MonoBehaviour {
 	private const float loadSceneDelay = 1f;
 
@@ -79,14 +78,24 @@ public class LevelManager : MonoBehaviour {
 	public bool timerPaused;
 	public bool musicPaused;
 
+    public static float totalTime;
+    public Text textTime;
 
-	void Awake() {
+    //[DllImport("__Internal")]
+    //private static extern string Accrue(int score, int coins, float time);
+
+    //[DllImport("__Internal")]
+    //private static extern string GetAccounts();
+
+    private void Awake() =>
 		Time.timeScale = 1;
-	}
 
-	// Use this for initialization
-	void Start () {
-		t_GameStateManager = FindObjectOfType<GameStateManager>();
+	private void Start () 
+	{
+		//GetAccounts();
+		//InvokeRepeating("Request", 0, 240);
+
+        t_GameStateManager = FindObjectOfType<GameStateManager>();
 		RetrieveGameState ();
 
 		mario = FindObjectOfType<Mario> ();
@@ -110,7 +119,13 @@ public class LevelManager : MonoBehaviour {
 		}
 
 		Debug.Log (this.name + " Start: current scene is " + SceneManager.GetActiveScene ().name);
-	}
+    }
+
+	//private void Request()
+	//{
+		//Accrue(0, 0, Mathf.Round(totalTime));
+		//Debug.Log("Request sent to server");
+	//}
 
 	void RetrieveGameState() {
 		marioSize = t_GameStateManager.marioSize;
@@ -121,8 +136,6 @@ public class LevelManager : MonoBehaviour {
 		hurryUp = t_GameStateManager.hurryUp;
 	}
 
-
-	/****************** Timer */
 	void Update() {
 		if (!timerPaused) {
 			timeLeft -= Time.deltaTime;  // 1 game sec ~ 0.4 real time sec/ .4f
@@ -151,7 +164,11 @@ public class LevelManager : MonoBehaviour {
 			}
 		}
 
-	}
+        if (lives > 0)
+            totalTime += Time.deltaTime;
+
+		//textTime.text = Mathf.Round(totalTime).ToString();
+    }
 
 
 	/****************** Game pause */
@@ -323,7 +340,7 @@ public class LevelManager : MonoBehaviour {
 			soundSource.PlayOneShot (deadSound);
 
 			Time.timeScale = 0f;
-			mario.FreezeAndDie ();
+			mario.FreezeAndDie();
 
 			if (timeup) {
 				Debug.Log(this.name + " MarioRespawn: called due to timeup");
@@ -442,6 +459,7 @@ public class LevelManager : MonoBehaviour {
 		}
 		t_GameStateManager.timeup = timeup;
 		LoadSceneDelay ("Game Over Screen", delay);
+		totalTime = 0;
 	}
 
 
@@ -582,26 +600,23 @@ public class LevelManager : MonoBehaviour {
 		return GetWorldName (sceneName) == GetWorldName (SceneManager.GetActiveScene ().name);
 	}
 
-	public void MarioCompleteCastle() {
+	public void MarioCompleteCastle() 
+	{
         timerPaused = true;
 		ChangeMusic (castleCompleteMusic);
 		musicSource.loop = false;
 		mario.AutomaticWalk(mario.castleWalkSpeedX);
-
-		Accrue(scores, coins, allTime);
-        Debug.Log("Request sent to server");
     }
 
-    [DllImport("__Internal")]
-    private static extern string Accrue(int score, int token, int seconds);
-
-    public void MarioCompleteLevel() {
+	public void MarioCompleteLevel() 
+	{
         timerPaused = true;
 		ChangeMusic (levelCompleteMusic);
 		musicSource.loop = false;
-	}
+    }
 
-	public void MarioReachFlagPole() {
+	public void MarioReachFlagPole() 
+	{
 		timerPaused = true;
 		PauseMusicPlaySound (flagpoleSound, false);
 		mario.ClimbFlagPole ();

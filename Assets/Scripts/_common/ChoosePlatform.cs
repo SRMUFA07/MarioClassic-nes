@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class ChoosePlatform : MonoBehaviour
 {
-    public static bool _pcDevice = true;
+    public static bool _pcDevice = false;
 
     public AudioSource changeSound;
 
